@@ -1,7 +1,16 @@
 import React, { Component } from "react";
 import styles from "./SearchBar.module.css";
+import T from "prop-types";
 
 class SearchBar extends Component {
+  static defaultProps = {
+    onSubmit: () => {},
+  };
+
+  static propTypes = {
+    onSubmit: T.func,
+  };
+
   state = {
     inputValue: "",
   };
