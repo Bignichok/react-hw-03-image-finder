@@ -4,16 +4,21 @@ import ImageGalleryItem from "./ImageGalleryItem/ImageGalleryItem";
 import T from "prop-types";
 
 const ImageGallery = ({ images, onSetBigImageUrl }) => {
-  const imageGalleryItems = images.map((img) => (
-    <ImageGalleryItem
-      key={img.id}
-      imageSrc={img.webformatURL}
-      alt={img.tags}
-      bigImgUrl={img.largeImageURL}
-      onSetBigImageUrl={onSetBigImageUrl}
-    />
-  ));
-  return <ul className={styles.ImageGallery}>{imageGalleryItems}</ul>;
+  return (
+    !!images && (
+      <ul className={styles.ImageGallery}>
+        {images.map(({ id, webformatURL, tags, largeImageURL }) => (
+          <ImageGalleryItem
+            key={id}
+            imageSrc={webformatURL}
+            alt={tags}
+            bigImgUrl={largeImageURL}
+            onSetBigImageUrl={onSetBigImageUrl}
+          />
+        ))}
+      </ul>
+    )
+  );
 };
 
 ImageGallery.defaultProps = {
