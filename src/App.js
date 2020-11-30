@@ -25,9 +25,6 @@ class App extends Component {
     const prevPage = prevState.pageNumber;
     const currentPage = this.state.pageNumber;
 
-    // const prevLargeImg = prevState.largeImgUrl;
-    // const currentLargeImg = this.state.largeImgUrl;
-
     if (prevQuery !== currentQuery) {
       this.fetchImages();
     }
