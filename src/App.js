@@ -18,28 +18,23 @@ class App extends Component {
     largeImgUrl: null,
   };
 
-  componentDidMount() {}
-
   componentDidUpdate(prevProps, prevState) {
     const prevQuery = prevState.searchQuery;
-    const nextQuery = this.state.searchQuery;
+    const currentQuery = this.state.searchQuery;
 
     const prevPage = prevState.pageNumber;
-    const nextPage = this.state.pageNumber;
+    const currentPage = this.state.pageNumber;
 
-    const prevLargeImg = prevState.largeImgUrl;
-    const nextLargeImg = this.state.largeImgUrl;
+    // const prevLargeImg = prevState.largeImgUrl;
+    // const currentLargeImg = this.state.largeImgUrl;
 
-    if (prevQuery !== nextQuery) {
+    if (prevQuery !== currentQuery) {
       this.fetchImages();
     }
 
-    if (prevPage !== nextPage) {
+    if (prevPage !== currentPage) {
       this.smoothScroll();
     }
-
-    if (nextLargeImg) window.addEventListener("keydown", this.closeModal);
-    if (prevLargeImg) window.removeEventListener("keydown", this.closeModal);
   }
 
   fetchImages = () => {
@@ -62,6 +57,7 @@ class App extends Component {
 
   setBigImageUrl = (url) => {
     this.setState({ largeImgUrl: url });
+    if (url) window.addEventListener("keydown", this.closeModal);
   };
 
   smoothScroll = () => {
@@ -72,6 +68,8 @@ class App extends Component {
   };
 
   closeModal = (e) => {
+    window.removeEventListener("keydown", this.closeModal);
+
     if (e.code === "Escape") {
       this.setState({ largeImgUrl: null });
     } else if (e.target.src !== this.state.largeImgUrl) {

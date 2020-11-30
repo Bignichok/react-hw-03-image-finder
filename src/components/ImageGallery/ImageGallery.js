@@ -5,7 +5,7 @@ import T from "prop-types";
 
 const ImageGallery = ({ images, onSetBigImageUrl }) => {
   return (
-    !!images && (
+    images.length && (
       <ul className={styles.ImageGallery}>
         {images.map(({ id, webformatURL, tags, largeImageURL }) => (
           <ImageGalleryItem
