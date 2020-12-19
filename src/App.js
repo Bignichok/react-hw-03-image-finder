@@ -1,97 +1,87 @@
-import React, { Component } from "react";
-import { imagesApi } from "./utils/imagesApi";
-import "./App.css";
+import React, { useEffect, useState } from "react";
 
+import { imagesApi } from "./utils/imagesApi";
 import Button from "./components/Button/Button";
 import ImageGallery from "./components/ImageGallery/ImageGallery";
 import SearchBar from "./components/Searchbar/SearchBar";
 import Preloader from "./components/Preloader/Preloader";
 import Modal from "./components/Modal/Modal";
 
-class App extends Component {
-  state = {
-    images: [],
-    searchQuery: "",
-    pageNumber: 1,
-    error: "",
-    loading: false,
-    largeImgUrl: null,
-  };
+import "./App.css";
 
-  componentDidUpdate(prevProps, prevState) {
-    const prevQuery = prevState.searchQuery;
-    const currentQuery = this.state.searchQuery;
+const App = () => {
+  const [images, setImages] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [pageNumber, setPageNumber] = useState(1);
+  const [largeImgUrl, setLargeImgUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [searchError, setSearchError] = useState(false);
+  const [error, setError] = useState(null);
 
-    const prevPage = prevState.pageNumber;
-    const currentPage = this.state.pageNumber;
+  useEffect(() => {
+    if (!searchQuery) return;
+    fetchImages();
+    searchError && setSearchError(false);
+  }, [searchQuery]);
 
-    if (prevQuery !== currentQuery) {
-      this.fetchImages();
-    }
+  useEffect(() => {
+    smoothScroll();
+  }, [pageNumber]);
 
-    if (prevPage !== currentPage) {
-      this.smoothScroll();
-    }
-  }
-
-  fetchImages = () => {
-    const { searchQuery, pageNumber } = this.state;
-    this.setState({ loading: true });
+  const fetchImages = () => {
+    setLoading(true);
     imagesApi(searchQuery, pageNumber)
-      .then((images) => {
-        this.setState((prevState) => ({
-          images: [...prevState.images, ...images.hits],
-          pageNumber: prevState.pageNumber + 1,
-        }));
+      .then(({ hits }) => {
+        if (!hits.length) {
+          setSearchError(true);
+          return;
+        }
+        setImages((prevImages) => [...prevImages, ...hits]);
+        setPageNumber((prevPageNumber) => prevPageNumber + 1);
       })
-      .catch((error) => this.setState({ error: error }))
-      .finally(() => this.setState({ loading: false }));
+      .catch((error) => setError(error))
+      .finally(() => setLoading(false));
   };
 
-  handleSearchFormSubmit = (query) => {
-    this.setState({ searchQuery: query, pageNumber: 1, images: [] });
+  const handleSearchFormSubmit = (query) => {
+    setSearchQuery(query);
+    setPageNumber(1);
+    setImages([]);
   };
 
-  setBigImageUrl = (url) => {
-    this.setState({ largeImgUrl: url });
-    if (url) window.addEventListener("keydown", this.closeModal);
+  const setBigImageUrl = (url) => {
+    setLargeImgUrl(url);
+    if (url) window.addEventListener("keydown", closeModal);
   };
 
-  smoothScroll = () => {
+  const smoothScroll = () => {
     window.scrollTo({
       top: document.documentElement.scrollHeight,
       behavior: "smooth",
     });
   };
 
-  closeModal = (e) => {
-    window.removeEventListener("keydown", this.closeModal);
-
-    if (e.code === "Escape") {
-      this.setState({ largeImgUrl: null });
-    } else if (e.target.src !== this.state.largeImgUrl) {
-      this.setState({ largeImgUrl: null });
-    }
+  const closeModal = ({ code, target }) => {
+    window.removeEventListener("keydown", closeModal);
+    if (code === "Escape" || target.src !== largeImgUrl) setLargeImgUrl(null);
   };
 
-  render() {
-    const { images, loading, largeImgUrl } = this.state;
-    return (
-      <div className="App">
-        <SearchBar onSubmit={this.handleSearchFormSubmit} />
-        <ImageGallery onSetBigImageUrl={this.setBigImageUrl} images={images} />
-        {loading && <Preloader />}
-        {images.length > 0 && !loading && (
-          <Button text="Load more" clickHandler={this.fetchImages} />
-        )}
-        {largeImgUrl && (
-          <Modal onCloseModal={this.closeModal}>
-            <img src={largeImgUrl} alt="modalImg"></img>
-          </Modal>
-        )}
-      </div>
-    );
-  }
-}
+  return (
+    <div className="App">
+      <SearchBar onSubmit={handleSearchFormSubmit} />
+      <ImageGallery onSetBigImageUrl={setBigImageUrl} images={images} />
+      {searchError && <p>Sorry, no matches were found for your query. Try again!</p>}
+      {loading && <Preloader />}
+      {images.length > 14 && !loading && (
+        <Button text="Load more" clickHandler={fetchImages} />
+      )}
+      {largeImgUrl && (
+        <Modal onCloseModal={closeModal}>
+          <img src={largeImgUrl} alt="modalImg"></img>
+        </Modal>
+      )}
+    </div>
+  );
+};
 
 export default App;

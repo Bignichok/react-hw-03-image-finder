@@ -1,14 +1,13 @@
 import React from "react";
-import styles from "./Button.module.css";
 import T from "prop-types";
 
-const Button = ({ text, clickHandler }) => {
-  return (
-    <button onClick={clickHandler} className={styles.Button}>
-      {text}
-    </button>
-  );
-};
+import styles from "./Button.module.css";
+
+const Button = ({ text, clickHandler }) => (
+  <button onClick={clickHandler} className={styles.Button}>
+    {text}
+  </button>
+);
 
 Button.defaultProps = {
   text: "Button",

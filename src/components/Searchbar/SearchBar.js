@@ -1,51 +1,43 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import styles from "./SearchBar.module.css";
 import T from "prop-types";
 
-class SearchBar extends Component {
-  static defaultProps = {
-    onSubmit: () => {},
-  };
+const SearchBar = ({ onSubmit }) => {
+  const [inputValue, setInputValue] = useState("");
 
-  static propTypes = {
-    onSubmit: T.func,
-  };
-
-  state = {
-    inputValue: "",
-  };
-
-  handleChange = (e) => {
-    this.setState({ inputValue: e.target.value });
-  };
-
-  handleSubmit = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    this.props.onSubmit(this.state.inputValue);
-    this.setState({ inputValue: "" });
+    onSubmit(inputValue);
+    setInputValue("");
   };
 
-  render() {
-    return (
-      <header className={styles.Searchbar}>
-        <form className={styles.SearchForm} onSubmit={this.handleSubmit}>
-          <button type="submit" className={styles.SearchFormButton}>
-            <span className={styles.SearchFormButtonLabel}>Search</span>
-          </button>
+  return (
+    <header className={styles.Searchbar}>
+      <form className={styles.SearchForm} onSubmit={handleSubmit}>
+        <button type="submit" className={styles.SearchFormButton}>
+          <span className={styles.SearchFormButtonLabel}>Search</span>
+        </button>
 
-          <input
-            onChange={this.handleChange}
-            className={styles.SearchFormInput}
-            type="text"
-            autoComplete="off"
-            autoFocus
-            placeholder="Search images and photos"
-            value={this.state.inputValue}
-          />
-        </form>
-      </header>
-    );
-  }
-}
+        <input
+          onChange={({ target }) => setInputValue(target.value)}
+          className={styles.SearchFormInput}
+          type="text"
+          autoComplete="off"
+          autoFocus
+          placeholder="Search images and photos"
+          value={inputValue}
+        />
+      </form>
+    </header>
+  );
+};
+
+SearchBar.defaultProps = {
+  onSubmit: () => {},
+};
+
+SearchBar.propTypes = {
+  onSubmit: T.func,
+};
 
 export default SearchBar;
